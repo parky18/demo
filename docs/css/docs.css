@@ -1,0 +1,110 @@
+.docs-header, .bs-docs-masthead {
+    position: relative;
+    padding: 30px 0;
+    color: #cdbfe3;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    background-color: #6f5499;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#563d7c), to(#6f5499));
+    background-image: -webkit-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: -o-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: linear-gradient(to bottom, #563d7c 0, #6f5499 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#563d7c', endColorstr='#6F5499', GradientType=0);
+    background-repeat: repeat-x
+}
+.docs-header {
+    padding-top: 60px;
+    padding-bottom: 40px;
+    font-size: 20px;
+    text-align: left;
+}
+
+
+.docs-header h1 {
+    margin-top: 0;
+    color: #fff
+}
+
+.docs-header p {
+    margin-bottom: 0;
+    font-weight: 300;
+    line-height: 1.4
+}
+
+.docs-header .container {
+    position: relative
+}
+
+@media (min-width: 768px) {
+    .docs-header {
+        padding-top: 60px;
+        padding-bottom: 60px;
+        font-size: 24px;
+        text-align: left
+    }
+
+    .docs-header h1 {
+        font-size: 60px;
+        line-height: 1
+    }
+}
+
+@media (min-width: 992px) {
+    .docs-header h1, .docs-header p {
+        margin-right: 380px
+    }
+}
+.docs-section {
+    margin-bottom: 60px
+}
+
+.docs-section:last-child {
+    margin-bottom: 0
+}
+
+.highlight {
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    border-radius: 4px
+}
+
+.highlight pre {
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    word-break: normal;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0
+}
+
+.highlight pre code {
+    font-size: inherit;
+    color: #333
+}
+
+.highlight pre code:first-child {
+    display: inline-block;
+    padding-right: 45px
+}
+
+.docs-sidenav {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.docs-sidebar .nav > li > a:focus, .docs-sidebar .nav > li > a:hover {
+    padding-left: 19px;
+    color: #563d7c;
+    text-decoration: none;
+    background-color: transparent;
+    border-left: 1px solid #563d7c;
+}
+.docs-sidebar .nav > li > a {
+    display: block;
+    padding: 4px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #767676;
+}

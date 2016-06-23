@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>测试编译表达式</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <H1>测试编译表达式</H1>
+    <input type="text" name="exp" id="input_exp" value="{user.username}">
+    <button id="btn_exp">运行</button>
+    <h3>运行结果</h3>
+    <p id="result_exp"></p>
+
+</div>
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var users = [];
+        users.push({id: 10, username: '小李'});
+        users.push({id: 2, username: '小王'});
+        var ctx = $.domTemplate.newContext({'data': {user:{username:'lala',age:20},users: users}});
+        $("#btn_exp").click(function(){
+            var exp=$("#input_exp").val();
+            var result = ctx.compile(exp);
+            $("#result_exp").text("result:"+result+"; type:"+typeof result);
+            console.info(result);
+        });
+
+
+    });
+
+</script>
+
+</body>
+</html>

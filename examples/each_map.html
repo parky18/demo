@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>遍历map例子</title>
+</head>
+<body>
+
+<p>遍历map例子</p>
+<ul>
+    <li h-each="item : {users}" h-text="{item.key}:{item.value}">李小璐</li>
+</ul>
+
+<p>遍历map例子2</p>
+<ul>
+    <li  h-each="item : {{name:'lala',age:25}}" h-text="{item.key}:{item.value}">李小璐</li>
+</ul>
+
+
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script type='text/javascript' src="../dt.date.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $.domTemplate.init({escape:false,'data':{users:{username:'小李',id:50,age:20}}});
+    });
+
+</script>
+
+</body>
+</html>

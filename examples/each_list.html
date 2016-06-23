@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>遍历list例子</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div class="container">
+<H1>遍历list例子</H1>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped js-options-table">
+        <thead>
+            <th>用户名</th>
+            <th>状态变量：index</th>
+            <th>状态变量：count</th>
+            <th>状态变量：size</th>
+            <th>状态变量：current.userName</th>
+            <th>状态变量：even</th>
+            <th>状态变量：odd</th>
+            <th>状态变量：first</th>
+            <th>状态变量：last</th>
+         </thead>
+        <tbody>
+        <tr  h-each="user : {users}" h-class="{userStat.odd?'success':'warning'}">
+            <td h-text="{user.username}"><span>test</span></td>
+            <td h-text="{userStat.index}">状态变量：index</td>
+            <td h-text="{userStat.count}">状态变量：count</td>
+            <td h-text="{userStat.size}">状态变量：size</td>
+            <td h-text="{userStat.current.username}">状态变量：current</td>
+            <td h-text="{userStat.even}">状态变量：even****</td>
+            <td h-text="{userStat.odd}">状态变量：odd</td>
+            <td h-text="{userStat.first}">状态变量：first</td>
+            <td h-text="{userStat.last}">状态变量：last</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li h-each="user : {users}" h-text="{user.username} {user.id}">
+            item1
+        </li>
+    </ul>
+    
+</div>
+
+</div>
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.date.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var users=[];
+        users.push({id:10,username:'小李'});
+        users.push({id:20,username:'小王'});
+        $.domTemplate.init({escape:false,'data':{users:users}});
+    });
+
+</script>
+
+</body>
+</html>

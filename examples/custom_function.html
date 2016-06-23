@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" />
+    <title>自定义函数测试</title>
+</head>
+<body>
+
+<p>
+自定义函数测试:<span  h-text="{toPrefix(user.username)}">自定义函数</span>
+</p>
+
+
+
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script type="text/javascript">
+    $.domTemplate.registerHelper('toPrefix', function (value) {
+        return 'test:'+value;
+    });
+    $(function () {
+        $.domTemplate.init({'data':{'basePrefix':'姓名:',user:{username:'小明'}}});
+    });
+
+</script>
+
+
+</body>
+</html>

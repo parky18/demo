@@ -1,0 +1,18 @@
+[
+  {
+    "id": 50,
+    "username": "拉拉",
+    "email": "parky_18@163.com",
+    "type": "uType",
+    "createTime": 1465802753062,
+    "key": 50
+  },
+  {
+    "id": 60,
+    "username": "王晓红",
+    "email": "xiaohong@163.com",
+    "type": "aType",
+    "createTime": 1465802753062,
+    "key": 60
+  }
+]

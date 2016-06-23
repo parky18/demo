@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>domTemplate测试</title>
+</head>
+<body  h-model="{user:{url:'http://localhost:8080/v/game/getUser'}}">
+<p>属性测试</p>
+<p h-class="{user.type}" h-text="{user.username}">xxx1</p>
+--------------------
+<p>自定义函数测试</p>
+<div>
+<p h-text="{dateFormat(user.createTime,'yyyy-MM-dd hh:mm:ss')}">xxx1</p>
+</div>
+--------------------
+<p>函数运算测试</p>
+<div class="function-div" >
+<p  h-html="{user.id}-good{user.username}！！">xxx1</p>
+<p h-text="{user.id-user.id}">xxx1</p>
+    </div>
+--------------------
+<p>条件if测试</p>
+<div>
+<p h-if="{user.id!=50}" h-text="ID不等于50">ID不等于50</p>
+<p h-if="{user.id==20}" h-text="ID等于20">ID等于20</p>
+</div>
+--------------------
+<p>条件if else测试</p>
+<p h-unless="{user.id==40}" h-text="{user.id}">否则啦啦啦</p>
+--------------------
+<p>条件switch测试</p>
+<p h-switch="{user.id}">
+    <input type="text" h-case="40" h-val="{user.email}"/>
+    <input type="text" h-case="60" h-val="拉拉"/>
+    <input type="text" h-case="*" h-val="丽丽"/>
+</p>
+--------------------
+
+<p>列表测试测试和嵌套model测试</p>
+<div h-model="{users:{url:'http://localhost:8080/v/game/getUsers'}}">
+    <ul>
+        <li h-each="user : {users}" h-text="{userStat.index+1}---{user.email}">李小璐</li>
+    </ul>
+</div>
+
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+
+<script type='text/javascript' src="../bin/domTemplate.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $.domTemplate.init();
+    });
+
+//    $('.function-div').domTemplate({escape:false,'data':{user:{id:50,username:'小李',createTime:1464663225812}}});
+</script>
+
+
+</body>
+</html>

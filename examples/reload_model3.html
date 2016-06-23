@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>reload model例子  after方式</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div class="container"
+     h-model="{list1:{type:'get',url:'http://api.huceo.com/guonei/?key=0e70bfd01018c4404e24e68c73255d81&num=10'}}">
+    <H1>reload model例子 after方式</H1>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped js-options-table">
+            <thead>
+            <th>序号</th>
+            <th>标题</th>
+            <th>出处</th>
+            <th>日期</th>
+            </thead>
+            <tbody>
+            <tr h-each="article : {list1.newslist}">
+                <td h-text="{articleStat.index+1}"><span>index</span></td>
+                <td h-text="{article.title}">状态变量：index</td>
+                <td h-text="{article.description}">状态变量：count</td>
+                <td h-text="{article.ctime}">时间</td>
+            </tr>
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pager">
+                <li><a href="#" id="pre_btn">上一页</a></li>
+                <li><a href="#" id="next_btn">下一页</a></li>
+                <li>当前第<span  id="page_num">1</span>页</li>
+            </ul>
+        </nav>
+
+    </div>
+
+</div>
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $.domTemplate.init();
+        var page = 1;
+        var loading=false;
+        $("#pre_btn").click(function () {
+            if (loading) return;
+            page--;
+            if (page < 1) {
+                page = 1;
+            }
+            reload(page);
+        });
+        $("#next_btn").click(function () {
+            if (loading) return;
+            page++;
+            reload(page);
+        });
+
+        //appendType=after：返回数据往原来的列表后面拼接；appendType=before：返回数据往原来的列表前面拼接；
+        //appendType=page：清除原来列表数据，添加返回数据；
+        function reload(page) {
+            loading = true;
+            $.domTemplate.getModel('list1').setParamsData({page: page}).reload({appendType: 'after'}, function () {
+                console.info("加载完成")
+                // 设置flag
+                loading = false;
+                $("#page_num").text(page);
+            });
+        }
+    });
+
+</script>
+
+</body>
+</html>
