@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>延迟加载图片和渲染回调测试</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div class="container" h-model="{list:{url:'http://api.huceo.com/meinv/?key=0e70bfd01018c4404e24e68c73255d81&num=50'}}">
+
+
+    <div class="row" h-each="img : {list.newslist}">
+        <div class="col-md-12"> <a href="#" h-href="{img.url}"> <img src="images/1x1.png" h-data-original="{img.picUrl}" class="img-responsive"  width="765" height="574" ></a></div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+<!--<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>-->
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/jquery.lazyload/1.9.1/jquery.lazyload.js"></script>
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $.domTemplate.registerSupportAttr('data-original');//因为这个属性不是基础属性，需要注册
+
+        $.domTemplate.init(function(model){
+            if(model.options.name=='list') {
+                debugger;
+                $("img").lazyload({
+                    effect: "fadeIn"
+                });
+            }
+        });
+
+
+
+    });
+
+</script>
+
+</body>
+</html>

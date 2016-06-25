@@ -80,7 +80,7 @@
                 <div class="highlight">
                     <pre class="prettyprint"><code class="language-js" data-lang="js">
                         $(function () {<br/>
-                        $.domTemplate.init(options);//可以通过selector指定根节点，默认根节点是body,表示从body开始，渲染整个页面
+                        $.domTemplate.init(options,callback);//可以通过selector指定根节点，默认根节点是body,表示从body开始，渲染整个页面
                         <br/>
                         });
                     </code></pre>
@@ -88,7 +88,7 @@
                 <p>或者解析某一个html片段。<a target="_blank" href="examples/render_fragment.html">示例1</a> <a target="_blank" href="examples/render_fragment2.html">示例2</a> </p>
                 <div class="highlight">
                     <pre class="prettyprint"><code class="language-js" data-lang="js">
-                        $('selector').domTemplate(options);//渲染数据是通过h-model 自动去获取数据，也可以通过data指定全局数据
+                        $('selector').domTemplate(options,callback);//渲染数据是通过h-model 自动去获取数据，也可以通过data指定全局数据
                     </code></pre>
                 </div>
                 <h3 id="js-ctx-options">Options</h3>
@@ -142,6 +142,9 @@
                         </tbody>
                     </table>
                 </div>
+
+                <h3>callback</h3>
+                <p>模板渲染成功回调函数,<code>callback(model)</code>,所有需要等页面渲染成为做的逻辑需要注册这个回调函数，例如用<code>jquery.lazyload.js</code>实现图片懒加载</p>
 
                 <h2 id="js-h-model">model标签</h2>
                 <p>模板引擎通过<code>&lt;h-model&gt;</code>标签获取渲染数据,并把数据放到上下文<code>Context</code>中</p>
@@ -742,7 +745,7 @@
                 <h2 id="js-h-demo">例子</h2>
                 <p><a target="_blank" href="examples/test.html"> 例子</a></p>
                 <p><a target="_blank" href="examples/news.html"> 新闻App</a></p>
-
+                <p><a target="_blank" href="../examples/images_lazyload.html">图片懒加载和渲染成功回调例子</a></p>
 
 
             </div>

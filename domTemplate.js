@@ -4,7 +4,8 @@
  */
 
 
-;(function ($) {
+;
+(function ($) {
 
     "use strict";
 
@@ -60,10 +61,10 @@
             return value;
         },
         tpl: function (exp) {
-            return $.domTemplate.template.tpl(exp, this.options.data,this.options.escape);
+            return $.domTemplate.template.tpl(exp, this.options.data, this.options.escape);
         },
         compile: function (exp) {
-            return  $.domTemplate.template.compile(exp,  this.options.data);
+            return $.domTemplate.template.compile(exp, this.options.data);
         },
         find: function (selector) {//查找子类和自身
             var $el = this.options.$parentElement;
@@ -125,7 +126,7 @@
     }
 
     function toJson(str) {
-        return (new Function("","return "+str))();
+        return (new Function("", "return " + str))();
     }
 
     /**
@@ -139,7 +140,7 @@
     var DataLoader = function (ctx, model, name, options) {
         this.ctx = ctx || {};
         this.model = model;
-        this.options=options;
+        this.options = options;
         this.name = name || '';
     };
 
@@ -150,7 +151,7 @@
 
             var _async = typeof callback === "function" ? true : false;
             var _resultData;
-            var ajaxParams= $.extend({
+            var ajaxParams = $.extend({
                 type: 'post',
                 data: {},
                 dataType: 'json',
@@ -163,7 +164,7 @@
                     console.error(status + ":" + orr);
                 }
 
-            },me.options);
+            }, me.options);
 
             $.ajax(ajaxParams);
             if (!_async) {
@@ -209,9 +210,10 @@
                 }
                 this.options.ctx.cleanDoneTag();
             }
-
             this.options.callback = isFunction(options) ? options : callback;
-
+            if (this.options.callback && this.options.ctx) {
+                this.options.ctx.options.callback = this.options.callback;
+            }
             this.load();
         },
         load: function () {
@@ -259,8 +261,8 @@
             if (this.parent) {
                 this.parent.execute(this.options.parentCtx);
             }
-            if (this.options.callback) {
-                this.options.callback(this)
+            if (this.options.ctx.options.callback) {
+                this.options.ctx.options.callback(this)
             }
 
         }
@@ -280,7 +282,14 @@
         rootModel: {},
         models: {},
 
-        init: function (options) {
+        init: function (options, callback) {
+            if (isFunction(options)) {
+                options = {callback: options};
+            } else{
+                options=options||{};
+                options.callback =callback;
+            }
+
             var ctx = new Context(options);
             this.executeModel(ctx);
         },
@@ -808,18 +817,25 @@
     /**
      * 渲染页面 会自动加载model 数据
      * 用法：$.domTemplate.init([options]);
-     * @param ctx
+     * @param options
+     * @param callback 渲染完成回调函数
      */
-    DomTemplate.init = function (options) {
-        _domTemplate.fn.init(options);
+    DomTemplate.init = function (options, callback) {
+        _domTemplate.fn.init(options, callback);
     };
 
     /**
      * jquery方式渲染页面
      * @param options
      */
-    $.fn.domTemplate = function (options) {
-        options = options || {};
+    $.fn.domTemplate = function (options,callback) {
+        if (isFunction(options)) {
+            options = {callback: options};
+        } else{
+            options=options||{};
+            options.callback =callback;
+        }
+
         this.each(function (index, item) {
             options.$parentElement = $(item);
             var ctx = new Context(options);
