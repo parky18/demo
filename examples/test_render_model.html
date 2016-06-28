@@ -17,9 +17,9 @@
         <p>出处:<span h-text="{data.newslist[0].diangu}"></span></p>
     </div>
 
-    <p>xxx</p>
+    <p>错误处理</p>
 
-    <div h-model="{user:{render:'render',url:''}}">
+    <div h-model="{user:{render:'modelRender',url:''}}">
         <p h-text="{user.error}">详细</p>
     </div>
 
@@ -43,7 +43,7 @@
         console.info("model名称" + modelName);
         console.info(res);
         if(!res){//失败
-            return {error: '错误'};
+            return {error: '服务器错误'};
         }
 
         if (modelName == 'data') {
