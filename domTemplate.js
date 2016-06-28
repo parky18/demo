@@ -174,10 +174,6 @@
             }, me.options);
             ajaxParams.success = function (res) {
                 res = me.setValue(res);
-                //if(ajaxParams.render&& ajaxParams.render in window ){
-                //    res=window[ajaxParams.render](me.name,res);
-                //}
-                //me.ctx.options.data[me.name] = res;
                 _async ? callback(me.model) : _resultData = res;
             };
 
@@ -255,7 +251,9 @@
                 for (var i = 0; i < childrenSize; i++) {
                     this.options.children[i].load(this.callback);
                 }
-                this.execute();
+                if(childrenSize==0){
+                    this.execute();
+                }
             }
         },
         addChild: function (childModel) {
@@ -267,6 +265,19 @@
             this.options.sibling.push(model);
             return this;
         },
+        /**
+         * 所有嵌套model是否解析
+         * @returns {boolean}
+         */
+        isAllChildrenDone: function () {
+            var childrenSize = this.childrenSize();
+            for (var i = 0; i < childrenSize; i++) {
+                if(!this.options.children[i].options.parsed){
+                    return false;
+                }
+            }
+            return true;
+        },
         execute: function (ctx) {
             if (!this.options.parsed) {
                 this.options.parsed = true;
@@ -275,14 +286,14 @@
                     name: this.options.name,
                     $parentElement: this.options.modelEl
                 }, this.options.parentCtx);
-                if (isEmptyObject(this.options.ctx.options.data) || !this.options.dataLoader) {//data数据为空
+                if (isEmptyObject(this.options.ctx.options.data)) {//data数据为空
                     return;
                 }
                 this.options.ctx.$currentElement = this.options.modelEl;
                 this.options.ctx.modelCtx = this.options.ctx;
                 _domTemplate.fn.tagsExecutor(this.options.ctx);
             }
-            if (this.parent) {
+            if (this.parent&&this.parent.isAllChildrenDone()) {
                 this.parent.execute(this.options.parentCtx);
             }
             if (this.options.ctx.options.callback) {
