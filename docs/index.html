@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端引擎">
+    <meta name="description" content="一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端HTML模板解析引擎">
     <meta name="author" content="">
 
     <title>
@@ -34,7 +34,7 @@
 <div class="docs-header" id="content" tabindex="-1">
     <div class="container">
         <h1>domTemplate</h1>
-        <p>一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端引擎</p>
+        <p>一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端HTML模板解析引擎</p>
     </div>
 </div>
 
@@ -46,7 +46,7 @@
 
                 <h2 id="js-h-over">概述</h2>
                 <p>
-                    这是一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端引擎。
+                    这是一个非侵入式、不会破坏原来静态页面结构、可被浏览器正确显示的、格式良好的前端HTML模板解析引擎。
                 </p>
 
                 <p>
@@ -74,13 +74,13 @@
 
                 <h2 id="js-h-user">用法</h2>
                 <p>
-                    导入<code>jquery.js</code>或者<code>zepto.js</code>和<code>domTemplate.js</code>
+                    导入<code>jquery.js</code>或者<code>zepto.js</code>和<code>domTemplate.min.js</code>
                     <a target="_blank" href="../examples/render_all.html">示例</a>
                 </p>
                 <div class="highlight">
                     <pre class="prettyprint"><code class="language-js" data-lang="js">
                         $(function () {<br/>
-                        $.domTemplate.init(options);//可以通过selector指定根节点，默认根节点是body,表示从body开始，渲染整个页面
+                        $.domTemplate.init(options,callback);//可以通过selector指定根节点，默认根节点是body,表示从body开始，渲染整个页面
                         <br/>
                         });
                     </code></pre>
@@ -88,7 +88,7 @@
                 <p>或者解析某一个html片段。<a target="_blank" href="../examples/render_fragment.html">示例1</a> <a target="_blank" href="../examples/render_fragment2.html">示例2</a> </p>
                 <div class="highlight">
                     <pre class="prettyprint"><code class="language-js" data-lang="js">
-                        $('selector').domTemplate(options);//渲染数据是通过h-model 自动去获取数据，也可以通过data指定全局数据
+                        $('selector').domTemplate(options,callback);//渲染数据是通过h-model 自动去获取数据，也可以通过data指定全局数据
                     </code></pre>
                 </div>
                 <h3 id="js-ctx-options">Options</h3>
@@ -143,26 +143,154 @@
                     </table>
                 </div>
 
+                <h3>callback</h3>
+                <p>模板渲染成功回调函数,<code>callback(model)</code>,所有需要等页面渲染成为做的逻辑需要注册这个回调函数，例如用<code>jquery.lazyload.js</code>实现图片懒加载</p>
+
                 <h2 id="js-h-model">model标签</h2>
-                <p>模板引擎通过<code>&lt;h-model&gt;</code>标签获取渲染数据</p>
+                <p>模板引擎通过<code>&lt;h-model&gt;</code>标签获取渲染数据,并把数据放到上下文<code>Context</code>中</p>
 
+                <p>方式1(把h-model取数据放在任意标签):</p>
                 <div class="highlight">
-                    <pre class="prettyprint"><code class="language-html" data-lang="html">&lt;body h-model="{user:{url:'http://localhost:8080/v/game/getUser'}}">&lt;/body&gt;</code></pre>
+                    <pre class="prettyprint"><code class="language-html" data-lang="html">
+                        &lt;body h-model="{user:{url:'http://localhost:8080/v/game/getUser'}}">&lt;
+                        <br/>
+                        &lt;a h-class="{user.type}" h-href="{user.pic}" h-text="{user.username}"&gt;xxx1&lt;/a&gt;
+                        <br/>
+                        /body&gt;</code></pre>
                 </div>
 
+                <p>方式2(把h-model取数据放在任意标签,可以连续取多个Model数据):</p>
                 <div class="highlight">
-                    <pre class="prettyprint"><code class="language-html" data-lang="html">&lt;div h-model="{user:{url:'http://localhost:8080/v/game/getUser'}}">&lt;/div&gt;</code></pre>
+                    <pre class="prettyprint"><code class="language-html" data-lang="html">
+                        &lt;div h-model="{user:{url:'http://localhost:8080/v/game/getUser'},users:{type:'get',url:'http://localhost:8080/v/game/getUsers'}}">
+                        <br/>
+                        &lt;a h-class="{user.type}" h-href="{user.pic}" h-text="{user.username}"&gt;xxx1&lt;/a&gt;
+                        <br/>
+                        &lt;/div&gt;
+                    </code></pre>
                 </div>
 
-                <p>返回user 数据结构 到上下文：</p>
+                <p>方式3(把h-model取数据放在任意标签,不同块数据相互不影响):</p>
                 <div class="highlight">
-                <pre class="prettyprint"><code class="language-json" data-lang="json">{"id":20,"username":"李华明","email":"lihuaming@qq.com","pic":"http://www.baidu.com/20.jpg","createTime":1464578134332,"type":"uType","memo":"&lt;p&gt;个人介绍&lt;/p&gt;","createTime":1464575976124,"key":20}</code></pre>
+                    <pre class="prettyprint">
+                        <code class="language-html" data-lang="html">
+                            &lt;div h-model="{user1:{url:'http://localhost:8080/v/game/getUser?id=5'}}">
+                            <br/>
+                            &lt;a h-class="{user1.type}" h-href="{user1.pic}" h-text="{user1.username}"&gt;xxx1&lt;/a&gt;
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;div h-model="{user2:{url:'http://localhost:8080/v/game/getUser?id=6'}}">
+                            <br/>
+                            &lt;a h-class="{user2.type}" h-href="{user2.pic}" h-text="{user2.username}"&gt;xxx1&lt;/a&gt;
+                            <br/>
+                            &lt;/div&gt;
+                        </code>
+                    </pre>
                 </div>
+
+                <p>方式4(h-model标签可以嵌套使用):</p>
+                <div class="highlight">
+                    <pre class="prettyprint">
+                        <code class="language-html" data-lang="html">
+                            &lt;body&gt;
+                            <br/>
+                            &lt;div class="container"&gt;
+                            <br/>
+                            &lt;div class="table-responsive"  h-model="{data:{url:'http://api.huceo.com/txapi/chengyu/?key=0e70bfd01018c4404e24e68c73255d81&word=%E9%A9%AC%E5%88%B0%E6%88%90%E5%8A%9F'}}"&gt;
+                            <br/>
+                            &lt;h3 h-text="{data.newslist[0].chengyu}">成语</h3&gt;
+                            <br/>
+                            &lt;p>出处:&lt;span h-text="{data.newslist[0].diangu}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p>拼音:&lt;span h-text="{data.newslist[0].pinyin}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p>出处:&lt;span h-text="{data.newslist[0].chuchu}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p>范例:&lt;span h-text="{data.newslist[0].fanli}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;div h-model="{data2:{url:'http://api.huceo.com/txapi/chengyu/?key=0e70bfd01018c4404e24e68c73255d81&word=%E6%97%97%E5%BC%80%E5%BE%97%E8%83%9C'}}"&gt;
+                            <br/>
+                            &lt;h4 h-text="[{data.newslist[0].chengyu}]相关同义词:{data2.newslist[0].chengyu}">成语&lt;/h4&gt;
+                            <br/>
+                            &lt;p&gt;出处:&lt;span h-text="{data2.newslist[0].diangu}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p&gt;拼音:&lt;span h-text="{data2.newslist[0].pinyin}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p&gt;出处:&lt;span h-text="{data2.newslist[0].chuchu}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;p&gt;范例:&lt;span h-text="{data2.newslist[0].fanli}"&gt;&lt;/span&gt;&lt;/p&gt;
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;/body&gt;
+                        </code>
+                    </pre>
+                </div>
+
+                <p>方式5(可以定义一个全局函数对model数据进行干预):</p>
+                <div class="highlight">
+                    <pre class="prettyprint">
+                        <code class="language-html" data-lang="html">
+                            &lt;body&gt;
+                            <br/>
+                            &lt;div class="container"&gt;
+                            <br/>
+                            &lt;div class="table-responsive"  h-model="{data:{render:'modelRender',url:'http://api.huceo.com/txapi/chengyu/?key=0e70bfd01018c4404e24e68c73255d81&word=%E9%A9%AC%E5%88%B0%E6%88%90%E5%8A%9F'}}"&gt;
+                            <br/>
+                            &lt;h3 h-text="{data.newslist[0].chengyu}">成语</h3&gt;
+                            <br/>
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;/div&gt;
+                            <br/>
+                            &lt;/body&gt;
+                        </code>
+                    </pre>
+                    <p/>
+                     <pre class="prettyprint">
+                        <code class="javascript" data-lang="javascript">
+
+                            function modelRender(modelName, value) {
+                                <br/>
+                                    console.info("model名称" + modelName);
+                                <br/>
+                                    console.info(res);
+                                <br/>
+                                    if(!res){//失败
+                                <br/>
+                                    return {error: '错误'};
+                                <br/>
+                                    }
+                                <br/>
+                                    if (modelName == 'data') {
+                                    //可以对model数据进行修改
+                                <br/>
+                                    res.newslist[0].chengyu = res.newslist[0].chengyu + '(修改)';
+                                <br/>
+                                    return res;
+                                <br/>
+                                    }
+                                <br/>
+                            }
+                        </code>
+                    </pre>
+                </div>
+
+                <h2 >model标签作用域</h2>
+                <p>只有model标签的子节点才能获得model数据，不同块model数据相互独立不影响，但是单个页面model名称还是建议不要相同</p>
+                <br/>
 
                 <p> <a target="_blank" href="../examples/test_model.html">model标签测试例子</a></p>
 
                 <p> <a target="_blank" href="../examples/test_nest_model.html">嵌套model测试例子</a></p>
 
+                <p> <a target="_blank" href="../examples/test_render_model.html">自定义修改model数据例子</a></p>
 
                 <h3 >model请求参数</h3>
                 <div class="table-responsive">
@@ -199,6 +327,24 @@
                             <td>String</td>
                             <td>POST</td>
                             <td>请求方式 ("POST" 或 "GET")</td>
+                        </tr>
+                        <tr>
+                            <td>render</td>
+                            <td>function</td>
+                            <td></td>
+                            <td>
+                                /**
+                                <br/>
+                                * 定义一个全局函数对model数据进行干预
+                                <br/>
+                                * @param modelName model名称
+                                <br/>
+                                * @param res 原始model数据
+                                <br/>
+                                * @returns {*} 修改后的model数据
+                                <br/>
+                                */
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -348,7 +494,7 @@
                     <pre class="prettyprint"><code class="language-html" data-lang="html">&lt;a class='uType' href='http://www.baidu.com/20.jpg' h-class="{user.type}" h-href="{user.pic}" h-text="{user.username}"&gt;李华明&lt;/a&gt;</code></pre>
                 </div>
                 <p>
-                    如果还需要支持其他标签，可以通过<code>$.domTemplate.registerSupportAttr(attrName)</code>进行添加。
+                    如果还需要支持其他标签属性，可以通过<code>$.domTemplate.registerSupportAttr(attrName)</code>进行添加。
                 </p>
 
                 <h2 id="js-h-html">html标签</h2>
@@ -495,43 +641,43 @@
                     <pre class="prettyprint"><code class="language-html" data-lang="html">
                         &lt;p&gt;遍历List例子&lt;/p&gt;
                         <br/>
-                        &lt;ul h-each="user,userStat : {users}"&gt;
+                        &lt;ul&gt;
                         <br/>
-                        &lt;li h-text="{userStat.index+1}---{user.email}"&gt;李小璐&lt;/li&gt;
+                        &lt;li h-each="user,userStat : {users}" h-text="{userStat.index+1}---{user.email}"&gt;李小璐&lt;/li&gt;
                         <br/>
                         &lt;/ul&gt;
 
                         <p/>
                         &lt;p&gt;遍历map例子&lt;/p&gt;
                         <br/>
-                        &lt;ul h-each="item : {user}"&gt;
+                        &lt;ul&gt;
                         <br/>
-                        &lt;li h-text="{item.key}:{item.value}"&gt;李小璐&lt;/li&gt;
+                        &lt;li h-each="item : {user}" h-text="{item.key}:{item.value}"&gt;李小璐&lt;/li&gt;
                         <br/>
                         &lt;/ul&gt;
                         <p/>
                         &lt;p&gt;遍历map例子2&lt;/p&gt;
                         <br/>
-                        &lt;ul h-each="item : {{name:'lala',age:25}}"&gt;
+                        &lt;ul&gt;
                         <br/>
-                        &lt;li h-text="{item.key}:{item.value}"&gt;李小璐&lt;/li&gt;
+                        &lt;li h-each="item : {{name:'lala',age:25}}" h-text="{item.key}:{item.value}"&gt;李小璐&lt;/li&gt;
                         <br/>
                         &lt;/ul&gt;
 
                         <p/>
                         &lt;p&gt;遍历数组例子&lt;/p&gt;
                         <br/>
-                        &lt;ul h-each="item : {users}"&gt;
+                        &lt;ul&gt;
                         <br/>
-                        &lt;li h-text="{itemStat.index}:{item}"&gt;李小璐&lt;/li>&gt;
+                        &lt;li h-each="item : {users}" h-text="{itemStat.index}:{item}"&gt;李小璐&lt;/li>&gt;
                         <br/>
                         &lt;/ul&gt;
                         <p/>
                         &lt;p&gt;遍历数组例子2&lt;/p&gt;
                         <br/>
-                        &lt;ul h-each="item : {['lala','lulu']}"&gt;
+                        &lt;ul&gt;
                         <br/>
-                        &lt;li h-text="{itemStat.index}:{item}"&gt;李小璐&lt;/li&gt;
+                        &lt;li h-each="item : {['lala','lulu']}" h-text="{itemStat.index}:{item}"&gt;李小璐&lt;/li&gt;
                         <br/>
                         &lt;/ul&gt;
 
@@ -669,8 +815,7 @@
                 <h2 id="js-h-demo">例子</h2>
                 <p><a target="_blank" href="../examples/test.html"> 例子</a></p>
                 <p><a target="_blank" href="../examples/news.html"> 新闻App</a></p>
-
-
+                <p><a target="_blank" href="../examples/images_lazyload.html">图片懒加载和渲染成功回调例子</a></p>
 
             </div>
 

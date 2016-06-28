@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>自定义修改model数据例子</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div class="container">
+    <div class="table-responsive"
+         h-model="{data:{render:'modelRender',url:'http://api.huceo.com/txapi/chengyu/?key=0e70bfd01018c4404e24e68c73255d81&word=%E9%A9%AC%E5%88%B0%E6%88%90%E5%8A%9F'}}">
+        <h3 h-text="{data.newslist[0].chengyu}">成语</h3>
+
+        <p>出处:<span h-text="{data.newslist[0].diangu}"></span></p>
+    </div>
+
+    <p>xxx</p>
+
+    <div h-model="{user:{render:'render',url:''}}">
+        <p h-text="{user.error}">详细</p>
+    </div>
+
+</div>
+
+<!--<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>-->
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script src="../dt.date.js"></script>
+
+<script type="text/javascript">
+    /**
+     * 定义一个全局函数对model数据进行干预
+     * @param modelName
+     * @param res
+     * @returns {*}
+     */
+    function modelRender(modelName, res) {
+        console.info("model名称" + modelName);
+        console.info(res);
+        if(!res){//失败
+            return {error: '错误'};
+        }
+
+        if (modelName == 'data') {
+            //可以对model数据进行修改
+            res.newslist[0].chengyu = res.newslist[0].chengyu + '(修改)';
+            return res;
+        }
+    }
+    $(function () {
+        $.domTemplate.init();
+    });
+
+</script>
+
+</body>
+</html>

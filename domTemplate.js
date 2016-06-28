@@ -145,6 +145,20 @@
     };
 
     DataLoader.prototype = {
+        setValue: function (value) {
+            var me = this;
+            if (me.options.render && me.options.render in window) {
+                value = window[me.options.render](me.name, value);
+            }
+            me.ctx.options.data[me.name] = value;
+            return value;
+            //var _async = typeof callback === "function" ? true : false;
+            //if (_async) {
+            //    callback(me.model);
+            //} else {
+            //    return res;
+            //}
+        },
         load: function (callback) {
             var me = this;
             callback = callback || me.callback;
@@ -155,18 +169,29 @@
                 type: 'post',
                 data: {},
                 dataType: 'json',
-                async: _async,
-                success: function (res) {
-                    me.ctx.options.data[me.name] = res;
-                    _async ? callback(me.model) : _resultData = res;
-                },
-                error: function (xhr, status, orr) {
-                    console.error(status + ":" + orr);
-                }
+                async: _async
 
             }, me.options);
+            ajaxParams.success = function (res) {
+                res = me.setValue(res);
+                //if(ajaxParams.render&& ajaxParams.render in window ){
+                //    res=window[ajaxParams.render](me.name,res);
+                //}
+                //me.ctx.options.data[me.name] = res;
+                _async ? callback(me.model) : _resultData = res;
+            };
 
-            $.ajax(ajaxParams);
+            ajaxParams.error = function (xhr, status, orr) {
+                console.error(status + ":" + orr);
+                var value = me.setValue();
+                _async ? callback(me.model) : _resultData = value;
+            };
+            if (ajaxParams.url && ajaxParams.url != '') {
+                $.ajax(ajaxParams);
+            } else {
+                ajaxParams.error();
+            }
+
             if (!_async) {
                 return _resultData;
             }
@@ -242,22 +267,21 @@
             this.options.sibling.push(model);
             return this;
         },
-        execute: function () {
+        execute: function (ctx) {
             if (!this.options.parsed) {
                 this.options.parsed = true;
-
                 this.options.ctx = this.options.ctx ? new Context(this.options.ctx.options, this.options.parentCtx)
                     : new Context({
                     name: this.options.name,
                     $parentElement: this.options.modelEl
                 }, this.options.parentCtx);
-                if (isEmptyObject(this.options.ctx.options.data)) {//data数据为空
+                if (isEmptyObject(this.options.ctx.options.data) || !this.options.dataLoader) {//data数据为空
                     return;
                 }
+                this.options.ctx.$currentElement = this.options.modelEl;
                 this.options.ctx.modelCtx = this.options.ctx;
                 _domTemplate.fn.tagsExecutor(this.options.ctx);
             }
-
             if (this.parent) {
                 this.parent.execute(this.options.parentCtx);
             }
@@ -285,9 +309,9 @@
         init: function (options, callback) {
             if (isFunction(options)) {
                 options = {callback: options};
-            } else{
-                options=options||{};
-                options.callback =callback;
+            } else {
+                options = options || {};
+                options.callback = callback;
             }
 
             var ctx = new Context(options);
@@ -828,12 +852,12 @@
      * jquery方式渲染页面
      * @param options
      */
-    $.fn.domTemplate = function (options,callback) {
+    $.fn.domTemplate = function (options, callback) {
         if (isFunction(options)) {
             options = {callback: options};
-        } else{
-            options=options||{};
-            options.callback =callback;
+        } else {
+            options = options || {};
+            options.callback = callback;
         }
 
         this.each(function (index, item) {
