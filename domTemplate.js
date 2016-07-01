@@ -338,7 +338,7 @@
     var _domTemplate = {};
 
     _domTemplate.fn = DomTemplate.prototype = {
-        version: '1.0.0',
+        version: '1.0.9',
         doneTagsKey: 'done-tags',
         idIndex: 0,
         supportAttrs: ['text', 'val', 'html', 'href', 'src', 'class', 'css', 'width', 'height', 'name', 'id', 'title', 'alt'],
@@ -799,7 +799,6 @@
         'unless': {
             name: 'unless',
             render: function (ctx, name, exp) {
-                debugger;
                 if (ctx.compile(exp)) {
                     ctx.options.$currentElement.remove();
                 }

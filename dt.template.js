@@ -49,7 +49,6 @@
                 }
                 addCode(template.substr(cursor, template.length - cursor));
                 code += 'return r.join(""); }';
-                console.info(code);
                 var result = new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
                 if (escape) {
                     return $.domTemplate.encodeHTML(result)
@@ -73,11 +72,7 @@
                 options = $.extend({}, options, TemplateEngine.prototype.helpers);
                 var functionBody = "with(this){"
                 template = $.domTemplate.trim(template);
-                //for (var name in options) {
-                //    functionBody += 'var ' + name + '=this.' + name + ';';
-                //}
                 functionBody += "return " + template.substr(0, template.length - 1).substr(1) + "; }";
-                console.info(functionBody);
                 return new Function(functionBody).apply(options);
             };
 
