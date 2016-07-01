@@ -13,12 +13,13 @@
          * @param template
          * @constructor
          */
-        var TemplateEngine = function (template,options,escape) {
+        var TemplateEngine = function (template, options, escape) {
             var t = this;
             t.template = template;
-            t.options=options||{};
-            t.escape=escape||true;
-            var codeExp = /\{([^}>]+)?}/g, reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, code = 'var r=[];', match, cursor = 0;
+            t.options = options || {};
+            t.escape = typeof escape === "undefined" ? true : escape;
+
+            var codeExp = /\{([^}>]+)?}/g, reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, code = 'var r=[]; with(this){', match, cursor = 0;
 
             var addCode = function (line, isJs) {
 
@@ -34,26 +35,23 @@
              * @param escape 是否转义
              * @returns string
              */
-            function tpl(template, options,escape) {
+            function tpl(template, options, escape) {
                 template = template || t.template;
-                options=options|| t.options;
-                escape=escape|| t.escape;
+                options = options || t.options;
+                escape = typeof escape === "undefined" ? t.escape : escape;
                 if (typeof template !== 'string') {
                     throw new Error('Template must be a string');
                 }
                 options = $.extend({}, options, TemplateEngine.prototype.helpers);
-                for (var name in options) {
-                    code += 'var ' + name + '=this.' + name + ';';
-                }
                 while (match = codeExp.exec(template)) {
                     addCode(template.slice(cursor, match.index))(match[1], true);
                     cursor = match.index + match[0].length;
                 }
                 addCode(template.substr(cursor, template.length - cursor));
-                code += 'return r.join("");';
-
-                var result =new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
-                if(escape){
+                code += 'return r.join(""); }';
+                console.info(code);
+                var result = new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
+                if (escape) {
                     return $.domTemplate.encodeHTML(result)
                 } else {
                     return result;
@@ -68,22 +66,23 @@
              */
             function compile(template, options) {
                 template = template || t.template;
-                options=options|| t.options;
+                options = options || t.options;
                 if (typeof template !== 'string') {
                     throw new Error('Template must be a string');
                 }
                 options = $.extend({}, options, TemplateEngine.prototype.helpers);
-                var functionBody = ""
+                var functionBody = "with(this){"
                 template = $.domTemplate.trim(template);
-                for (var name in options) {
-                    functionBody += 'var ' + name + '=this.' + name + ';';
-                }
-                functionBody += "return " + template.substr(0, template.length - 1).substr(1) + ";";
+                //for (var name in options) {
+                //    functionBody += 'var ' + name + '=this.' + name + ';';
+                //}
+                functionBody += "return " + template.substr(0, template.length - 1).substr(1) + "; }";
+                console.info(functionBody);
                 return new Function(functionBody).apply(options);
             };
 
-            t.tpl = function (template, options,escape) {
-                return tpl(template, options,escape);
+            t.tpl = function (template, options, escape) {
+                return tpl(template, options, escape);
             };
             t.compile = function (template, options) {
                 return compile(template, options);
@@ -95,34 +94,75 @@
         };
 
         var template = function (template) {
-            return  new TemplateEngine(template);
+            return new TemplateEngine(template);
         };
 
-        template.tpl = function (template, options,escape) {
-            var instance =  new TemplateEngine(template,options,escape);
+        template.tpl = function (template, options, escape) {
+            var instance = new TemplateEngine(template, options, escape);
             return instance.tpl();
         };
         template.compile = function (template, options) {
-            var instance =  new TemplateEngine(template,options);
+            var instance = new TemplateEngine(template, options);
             return instance.compile();
         };
 
+        function _registerHelper(namespace, name, fn) {
+            var length = arguments.length;
+            fn = arguments[length - 1];
+            if (!$.domTemplate.isFunction(fn)) {
+                throw new Error('this last  argument must be a function');
+            }
+            if (length == 3 && namespace) {//有命名空间
+                if (!TemplateEngine.prototype.helpers[namespace]) {
+                    TemplateEngine.prototype.helpers[namespace] = {};
+                }
+                TemplateEngine.prototype.helpers[namespace][name] = fn;
+            } else {
+                TemplateEngine.prototype.helpers[namespace] = fn;
+            }
+        }
+
         /**
          * 注册自定义函数
+         * @param namespace 命名空间
          * @param name 函数名称
          * @param fn 处理逻辑
          */
-        $.domTemplate.registerHelper= template.registerHelper = function (name, fn) {
-            TemplateEngine.prototype.helpers[name] = fn;
+        $.domTemplate.registerHelper = template.registerHelper = function (namespace, name, fn) {
+            var length = arguments.length;
+            if (length == 0) {
+                throw new Error('arguments length must be >0');
+            }
+            var lastArg = arguments[length - 1];
+            var functionName, isObj = lastArg.length === undefined;
+            if (isObj) {
+                namespace = length == 1 ? undefined : namespace;
+                for (functionName in lastArg) {
+                    _registerHelper(namespace, functionName, lastArg[functionName]);
+                }
+            } else if(length==2){
+                _registerHelper(namespace, lastArg);
+            }else if(length==3){
+                _registerHelper(namespace, name,lastArg);
+            }
         };
+
 
         /**
          * 删除自定义函数
-         * @param name
+         * @param namespace 命名空间
+         * @param name 函数名称
          */
-        $.domTemplate.unregisterHelper= template.unregisterHelper = function (name) {
-            TemplateEngine.prototype.helpers[name] = undefined;
-            delete TemplateEngine.prototype.helpers[name];
+        $.domTemplate.unregisterHelper = template.unregisterHelper = function (namespace, name) {
+            if (1 in arguments) {//有命名空间
+                if (TemplateEngine.prototype.helpers[namespace]) {
+                    TemplateEngine.prototype.helpers[namespace][name] = undefined;
+                    delete TemplateEngine.prototype.helpers[namespace][name];
+                }
+            } else {
+                TemplateEngine.prototype.helpers[namespace] = undefined;
+                delete TemplateEngine.prototype.helpers[namespace];
+            }
         };
         return template;
     })();

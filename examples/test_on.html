@@ -3,12 +3,12 @@
 <head lang="en">
     <meta charset="UTF-8"/>
     <meta http-equiv="Access-Control-Allow-Origin" />
-    <title>自定义函数测试</title>
+    <title>事件绑定测试</title>
 </head>
 <body>
 
 <p h-on="click={xx}">
-自定义函数测试:<span  h-text="{fn.dateFormat(createTime)}">自定义函数</span>
+    点击我
 </p>
 
 
@@ -27,7 +27,7 @@
         return 'test:'+value;
     });
     $(function () {
-        $.domTemplate.init({'data':{xx:function(){debugger;alert("dddd");},'basePrefix':'姓名:','url':'http://www.baidu.com?dd=d&dd=2','html_1':'<p>dd</p>',  createTime:1467301654,user:{username:'小明'}}});
+        $.domTemplate.init({'data':{xx:function(){debugger;alert("点击了");}}});
     });
 
 </script>

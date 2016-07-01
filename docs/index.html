@@ -139,6 +139,12 @@
                             <td>$parentElement</td>
                             <td>当前上下文渲染元素</td>
                         </tr>
+                        <tr>
+                            <td>before</td>
+                            <td>function</td>
+                            <td></td>
+                            <td>在model渲染前执行,可以改变model属性</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -364,6 +370,11 @@
                         </tr>
                         </thead>
                         <tbody>
+                        <tr>
+                            <td>methods</td>
+                            <td>object</td>
+                            <td>设置model事件方法</td>
+                        </tr>
                         <tr>
                             <td>setParamsData</td>
                             <td>object</td>
@@ -690,6 +701,26 @@
                 <p> <a target="_blank" href="../examples/each_array.html">遍历数组例子</a></p>
                 <p> <a target="_blank" href="../examples/each_nest_list.html">遍历嵌套list例子</a></p>
 
+                <h2 id="js-h-on">事件绑定标签h-on</h2>
+                <p>通过这个标签可以给元素绑定事件</p>
+                <div class="highlight">
+                    <pre class="prettyprint">
+                        <code class="language-html" data-lang="html">
+                        &lt;p h-on="click={xx},mouseout={xx}"&gt;
+                            点击我
+                        &lt;/p&gt;
+                        </code>
+                         </pre>
+                </div>
+
+                <div class="highlight">
+                    <pre class="prettyprint">
+                          <code class="language-js" data-lang="js">
+                              $.domTemplate.init({'data':{xx:function(){debugger;alert("点击了");}}});
+                          </code>
+                    </pre>
+                </div>
+                <p> <a target="_blank" href="../examples/test_on.html">事件绑定例子</a></p>
                 <h2 id="js-h-custom-tag">自定义标签</h2>
                 <p></p>
                 <div class="highlight">
@@ -861,6 +892,9 @@
                     </li>
                     <li>
                         <a href="#js-h-each">each遍历标签</a>
+                    </li>
+                    <li>
+                        <a href="#js-h-on">事件绑定标签h-on</a>
                     </li>
                     <li>
                         <a href="#js-h-custom-tag">自定义标签</a>

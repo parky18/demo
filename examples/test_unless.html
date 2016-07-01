@@ -3,20 +3,11 @@
 <head lang="en">
     <meta charset="UTF-8"/>
     <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
-    <title>遍历数组例子</title>
+    <title>条件if else测试</title>
 </head>
 <body>
-
-<p>遍历数组例子</p>
-<ul>
-    <li h-each="item : {users}" h-text="{itemStat.index}:{item}">李小璐</li>
-</ul>
-
-<p>遍历数组例子2</p>
-<ul>
-    <li  h-each="item : {['lala','lulu']}" h-text="{itemStat.index}:{item}">李小璐</li>
-</ul>
-
+<p>条件if else测试</p>
+<p h-unless="{age==20}" h-text="出来了">否则啦啦啦</p>
 
 
 <script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
@@ -24,13 +15,14 @@
 <!--去掉下面两个js可以预览静态效果-->
 <script type='text/javascript' src="../domTemplate.js"></script>
 <script type='text/javascript' src="../dt.template.js"></script>
-<script type='text/javascript' src="../dt.helpers.js"></script>
+
 <script type="text/javascript">
     $(function () {
-        $.domTemplate.init({escape:false,'data':{users:['小李','小明']}});
+        $.domTemplate.init({data:{age:50}});
     });
 
 </script>
+
 
 </body>
 </html>

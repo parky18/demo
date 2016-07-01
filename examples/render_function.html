@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" />
+    <title>运行方法</title>
+</head>
+<body  h-model="{user:{url:'http://localhost:8080/v/game/getUser'}}">
+
+
+
+<div class="fragment-div" >
+    <!--<p  h-html="{user.id}-good{user.username}！！">xxx1</p>-->
+    <!--<p h-text="{user.id-user.id}">xxx1</p>-->
+    <p h-if="{user.todo}">xxx2</p>
+</div>
+
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('.fragment-div').domTemplate({escape:false,'data':{user:{id:50,username:'小李',createTime:1464663225812,todo:function(ctx){
+            console.info(ctx.options.$currentElement);
+            console.info(ctx);
+            return true;
+        }}}});
+    });
+
+</script>
+
+
+</body>
+</html>

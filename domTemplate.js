@@ -12,8 +12,8 @@
     var DomTemplate = function () {
     };
 
-    $.domTemplate = DomTemplate;
-
+    $.dt =$.domTemplate = DomTemplate;
+    
     /**
      * 渲染数据上下文
      * @param options
@@ -22,10 +22,11 @@
      */
     var Context = function (options, ctx) {
         var parentOptions = ctx ? ctx.options : {};
-        this.id = DomTemplate.generateId();
+        this.id = $.dt.generateId();
         this.idIndex = 0;
         this.options = $.extend(
             {
+                attrEscape: false,
                 escape: true,
                 data: {},
                 selector: 'body',
@@ -40,6 +41,8 @@
         this.options.prefixLength = this.options.prefix.length;
         this.options.$parentElement = this.options.$parentElement || $(this.options.selector);
         this.options.$currentElement = this.options.$currentElement || this.options.$parentElement;
+        this.options.data.params= $.domTemplate.params();
+        this.data=this.options.data;
     };
 
     Context.prototype = {
@@ -56,15 +59,20 @@
             var keySet = path.split(".");
             var value = this.options.data;
             for (var i = 0; i < keySet.length; i++) {
-                value = value[DomTemplate.trim(keySet[i])];
+                value = value[$.dt.trim(keySet[i])];
             }
             return value;
         },
-        tpl: function (exp) {
-            return $.domTemplate.template.tpl(exp, this.options.data, this.options.escape);
+        tpl: function (exp,escape) {
+            return $.dt.template.tpl(exp, this.options.data, escape);
         },
         compile: function (exp) {
-            return $.domTemplate.template.compile(exp, this.options.data);
+            var result= $.dt.template.compile(exp, this.options.data);
+            if(isFunction(result)){
+                return result(this);
+            }else{
+                return result;
+            }
         },
         find: function (selector) {//查找子类和自身
             var $el = this.options.$parentElement;
@@ -85,7 +93,7 @@
         currentElTagAttr: function (name, attr) {
             var $el = this.options.$currentElement;
             if ($el) {
-                if (attr) {
+                if (typeof name == 'string' && (1 in arguments)) {
                     switch (name) {
                         case 'val':
                             $el.val(attr);
@@ -125,10 +133,28 @@
         return Object.prototype.toString.apply(obj) === "[object Function]";
     }
 
+    function isArray(arr) {
+        return Object.prototype.toString.apply(arr) === '[object Array]';
+    }
+
     function toJson(str) {
         return (new Function("", "return " + str))();
     }
 
+    function getURLParams() {
+        var url = location.search;
+        var params = {};
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1),pairs = str.split("&"),pair;
+            for(var i = 0; i < pairs.length; i ++) {
+                pair=pairs[i].split("=");
+                params[pair[0]]=(pair[1]);
+            }
+        }
+        return params;
+    }
+    $.dt.isFunction=isFunction;
+    $.dt.isArray=isArray;
     /**
      * model 数据请求对象
      * @param ctx
@@ -147,17 +173,13 @@
     DataLoader.prototype = {
         setValue: function (value) {
             var me = this;
-            if (me.options.render && me.options.render in window) {
+            if(isFunction(me.options.render)){
+                value= me.options.render(me.name, value);
+            }else if (me.options.render && me.options.render in window) {
                 value = window[me.options.render](me.name, value);
             }
-            me.ctx.options.data[me.name] = value;
+            me.ctx.options.data[me.name] =  $.extend(value, me.model.methods);
             return value;
-            //var _async = typeof callback === "function" ? true : false;
-            //if (_async) {
-            //    callback(me.model);
-            //} else {
-            //    return res;
-            //}
         },
         load: function (callback) {
             var me = this;
@@ -209,6 +231,9 @@
     };
 
     Model.prototype = {
+        methods:function(methods){
+            this.methods=methods;
+        },
         setParams: function (options) {
             $.extend(this.options.dataLoader.options, options);
             return this;
@@ -289,8 +314,11 @@
                 if (isEmptyObject(this.options.ctx.options.data)) {//data数据为空
                     return;
                 }
-                this.options.ctx.$currentElement = this.options.modelEl;
+                this.options.ctx.options.$currentElement = this.options.modelEl;
                 this.options.ctx.modelCtx = this.options.ctx;
+
+                this.options.ctx.model=this;
+
                 _domTemplate.fn.tagsExecutor(this.options.ctx);
             }
             if (this.parent&&this.parent.isAllChildrenDone()) {
@@ -303,7 +331,7 @@
         }
     };
 
-    $.domTemplate.newContext = function (options) {
+    $.dt.newContext = function (options) {
         return new Context(options);
     }
 
@@ -326,6 +354,7 @@
             }
 
             var ctx = new Context(options);
+            ctx.options.data.params=$.dt.params;
             this.executeModel(ctx);
         },
 
@@ -375,11 +404,11 @@
 
     };
     //生成全局ID
-    DomTemplate.generateId = function () {
+    $.dt.generateId = function () {
         return "dt_" + _domTemplate.fn.idIndex++;
     };
     //HTML转义
-    DomTemplate.encodeHTML = function (source) {
+    $.dt.encodeHTML = function (source) {
         return String(source)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -388,10 +417,15 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
     };
-    DomTemplate.trim = function (str) {
+    $.dt.trim = function (str) {
         return $.trim(str);
     }
-
+    $.dt.params=function(){
+        if(!$.dt._params){
+            $.dt._params= getURLParams();
+        }
+        return $.dt._params;
+    };
     _domTemplate.fn.modelTag = {
         name: 'model',
         tagName: function (ctx) {
@@ -462,6 +496,9 @@
             var lastModel = rootModels.length === 1 ? rootModel : rootModels[rootModels.length - 1];
             me.modelTreeParser(ctx, lastModel, $rootItem);
             _domTemplate.fn.setRootModel(rootModel);
+            if(ctx.options.before){
+              ctx.options.before();
+            }
             this.render(rootModel);
             return this;
         },
@@ -518,14 +555,14 @@
             }
 
             var data = {};
-            data.iterVar = DomTemplate.trim(parts[0]);
+            data.iterVar = $.dt.trim(parts[0]);
             data.iterStat = data.iterVar + 'Stat';
 
-            data.modelName = "{" + DomTemplate.trim(parts[1]);
+            data.modelName = "{" + $.dt.trim(parts[1]);
             if (data.iterVar.indexOf(",") > -1) {
                 var v = data.iterVar.split(",");
-                data.iterVar = DomTemplate.trim(v[0]);
-                data.iterStat = DomTemplate.trim(v[1]);
+                data.iterVar = $.dt.trim(v[0]);
+                data.iterStat = $.dt.trim(v[1]);
             }
             return data;
         },
@@ -534,22 +571,25 @@
             var me = this;
             $items.each(function (index, item) {
                 var $item = $(item);
-                if ($item.attr(me.itemKey)) {
+                if ($item.attr(me.itemKey)==$currentElement.attr('id')) {
                     $item.remove();
                 }
             });
+            $currentElement.hide();
         },
 
-        addItem: function (ctx, iterStat, $parentElement, $firstItemEl, $lashItemEl) {
+        addItem: function (ctx, iterStat, $parentElement, $firstItemEl, $lashItemEl,firstItemId) {
             var itemId = ctx.modelCtx.generateId();
             var tagName = this.tagName(ctx);
             if ($lashItemEl == null || $lashItemEl.length == 0) {//第一列
-                $firstItemEl.removeAttr(this.itemKey);
+                $firstItemEl.show();
+                //$firstItemEl.removeAttr(this.itemKey);
                 ctx.options.$parentElement = ctx.options.$currentElement;
                 _domTemplate.fn.tagsExecutor(ctx);
                 _domTemplate.fn.setDone($firstItemEl, this.name);
+                firstItemId=itemId;
                 $firstItemEl.attr("id", itemId);
-                $firstItemEl.attr(this.itemKey, true);
+                $firstItemEl.attr(this.itemKey, firstItemId);
                 $lashItemEl = $firstItemEl;
             } else {
                 var $appendEl = $firstItemEl.clone();
@@ -568,7 +608,7 @@
                     $firstItemEl = ctx.options.$currentElement = ctx.options.$parentElement = $parentElement.find('#' + itemId);
                     ctx.cleanDoneTag();
                     _domTemplate.fn.tagsExecutor(ctx, true);
-                    $firstItemEl.attr(this.itemKey, true);
+                    $firstItemEl.attr(this.itemKey, firstItemId);
                     $firstItemEl.attr(tagName, tagValue);
                 } else {//清空分页和无限上拉刷新
 
@@ -576,7 +616,7 @@
                     $lashItemEl = ctx.options.$currentElement = ctx.options.$parentElement = $parentElement.find('#' + itemId);
                     ctx.cleanDoneTag();
                     _domTemplate.fn.tagsExecutor(ctx, true);
-                    $lashItemEl.attr(this.itemKey, true);
+                    $lashItemEl.attr(this.itemKey, firstItemId);
                 }
 
             }
@@ -584,14 +624,13 @@
                 $firstItemEl.attr(this.lastItemIdKey, itemId);
             }
 
-            return {$firstItemEl: $firstItemEl, $lashItemEl: $lashItemEl};
+            return {$firstItemEl: $firstItemEl, $lashItemEl: $lashItemEl,firstItemId:firstItemId};
         },
 
         render: function (parentCtx, item) {
             var me = this;
             var $firstItemEl = $(item);
             var $parentElement = $firstItemEl.parent();
-
             var ctx = new Context({$parentElement: $parentElement, $currentElement: $firstItemEl}, parentCtx);
             ctx.modelCtx = parentCtx;
             if (_domTemplate.fn.isDone($firstItemEl, this.name)) {
@@ -600,25 +639,24 @@
 
             var dataParts = this.getEachValues(ctx);
             var iterVar = dataParts.iterVar, iterStat = dataParts.iterStat, modelName = dataParts.modelName;
-
             var object = ctx.compile(modelName);
+
+            if (ctx.options.appendType !== 'before' && ctx.options.appendType !== 'after') {//分页方式加载
+                this.clean(ctx, $firstItemEl);
+            }
 
             if (!object) {
                 return;
             }
-            if (ctx.options.appendType !== 'before' && ctx.options.appendType !== 'after') {//分页方式加载
-                this.clean(ctx, $firstItemEl);
-            }
+
             var $lastItemEl = null;
             var lastItemId = $firstItemEl.attr(this.lastItemIdKey);
             if (lastItemId) {
                 $lastItemEl = $parentElement.find('#' + lastItemId);
             }
 
-            var first = true, last = false, even = false, odd = false, index = 0, length = object.length,
+            var firstItemId=$firstItemEl.attr("id"),first = true, last = false, even = false, odd = false, index = 0, length = object.length,
                 isObj = length === undefined || isFunction(object);
-
-
             $.each(object, function (n, value) {
                 first = index != 0 ? false : true;
                 last = index == length - 1 ? true : false;
@@ -644,13 +682,14 @@
                     even: even,
                     odd: odd
                 };
-
-                var $el = me.addItem(ctx, ctx.options.data[iterStat], $parentElement, $firstItemEl, $lastItemEl);
+                var $el = me.addItem(ctx, ctx.options.data[iterStat], $parentElement, $firstItemEl, $lastItemEl,firstItemId);
                 $firstItemEl = $el.$firstItemEl;
                 $lastItemEl = $el.$lashItemEl;
+                firstItemId=$el.firstItemId;
                 index++;
 
             });
+            $firstItemEl.attr(this.itemKey, firstItemId?firstItemId:'');
 
         }
     };
@@ -734,7 +773,7 @@
                     for (var i = 0; i < attrs.length; i++) {
                         var pairs = attrs[i].split("=");
                         if (pairs.length === 2) {
-                            this.renderAttr(ctx, DomTemplate.trim(pairs[0]), pairs[1]);
+                            this.renderAttr(ctx, $.dt.trim(pairs[0]), pairs[1]);
                         }
                     }
                 } else {
@@ -742,7 +781,7 @@
                 }
             },
             renderAttr: function (ctx, name, exp) {
-                var result = ctx.tpl(exp);
+                var result = ctx.tpl(exp,name==='html'?ctx.options.escape:ctx.options.attrEscape);
                 if (result == null) {
                     return;
                 }
@@ -760,6 +799,7 @@
         'unless': {
             name: 'unless',
             render: function (ctx, name, exp) {
+                debugger;
                 if (ctx.compile(exp)) {
                     ctx.options.$currentElement.remove();
                 }
@@ -778,11 +818,22 @@
                 $el.empty();
                 $el.html($caseEl.clone());
             }
+        },
+        'todo': {
+            name: 'todo',
+            render: function (ctx, name, exp) {
+                var result = ctx.compile(exp);
+                var $el = ctx.options.$currentElement;
+                var $caseEl = $el.find('[' + this.caseName(ctx) + '="' + result + '"]');
+                $caseEl = $caseEl.length > 0 ? $caseEl : $el.find('[' + this.caseName(ctx) + '="*"]');
+                $el.empty();
+                $el.html($caseEl.clone());
+            }
         }
 
     };
 
-    DomTemplate.execute = function (ctx) {
+    $.dt.execute = function (ctx) {
         _domTemplate.fn.executeModel(ctx);
     };
 
@@ -791,7 +842,7 @@
      * @param name 标签名称
      * @param fn  处理逻辑
      */
-    DomTemplate.registerTag = function (name, fn) {
+    $.dt.registerTag = function (name, fn) {
         _domTemplate.fn.tags[name] = {'name': name, 'render': fn};
     };
 
@@ -799,7 +850,7 @@
      * 删除标签
      * @param name 标签名称
      */
-    DomTemplate.unregisterTag = function (name) {
+    $.dt.unregisterTag = function (name) {
         _domTemplate.fn.tags[name] = undefined;
         delete _domTemplate.fn.tags[name];
     };
@@ -808,14 +859,14 @@
      * 注册支持dom 标签属性
      * @param name 属性名称
      */
-    DomTemplate.registerSupportAttr = function (name) {
+    $.dt.registerSupportAttr = function (name) {
         _domTemplate.fn.supportAttrs.push(name)
     };
     /**
      * 删除支持dom 标签属性
      * @param name 属性名称
      */
-    DomTemplate.unregisterSupportAttr = function (name) {
+    $.dt.unregisterSupportAttr = function (name) {
         var attrTags = _domTemplate.fn.supportAttrs;
         var len = attrTags.length;
         for (var i = 0; i < len; i++) {
@@ -831,7 +882,7 @@
      * @param name model名称
      * @returns {Model}
      */
-    DomTemplate.getModel = function (name) {
+    $.dt.getModel = function (name) {
         return _domTemplate.fn.getModel(name);
     };
 
@@ -840,22 +891,22 @@
      * @param selector 选择器
      * @returns {Array}
      */
-    DomTemplate.getModelsBySelector = function (selector) {
+    $.dt.getModelsBySelector = function (selector) {
         var modelName = _domTemplate.fn.modelTag.parseModelName(selector);
         var models = [];
         for (var i = 0; i < modelName.length; i++) {
-            models.push(DomTemplate.getModel(modelName[i]));
+            models.push($.dt.getModel(modelName[i]));
         }
         return models;
     };
 
     /**
      * 渲染页面 会自动加载model 数据
-     * 用法：$.domTemplate.init([options]);
+     * 用法：$.dt.init([options]);
      * @param options
      * @param callback 渲染完成回调函数
      */
-    DomTemplate.init = function (options, callback) {
+    $.dt.init = function (options, callback) {
         _domTemplate.fn.init(options, callback);
     };
 
@@ -875,7 +926,7 @@
             options.$parentElement = $(item);
             var ctx = new Context(options);
             ctx.modelCtx = ctx;
-            $.domTemplate.execute(ctx);
+            $.dt.execute(ctx);
         });
     };
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:8080"/>
+    <title>遍历list例子</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div class="container">
+    <p>部门人员</p>
+    <div h-each="dep:{deps}">
+        <span h-text="{dep.name}{dateFormat(dep.createTime)}的用户有:">xxx</span>
+        <ul>
+            <li h-each="user:{dep.users}" h-text="{user}"/>
+        </ul>
+    </div>
+
+    <p>部门人员</p>
+    <div h-each="dep:{deps}">
+        <span h-text="{dep.name}{dateFormat(dep.createTime)}的用户有:">xxx</span>
+        <ul>
+            <li h-each="user:{dep.users}" h-text="{user}"/>
+        </ul>
+    </div>
+
+</div>
+
+<script src="http://cdn.bootcss.com/zepto/1.1.6/zepto.js"></script>
+<!--<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>-->
+<!--去掉下面两个js可以预览静态效果-->
+<script type='text/javascript' src="../domTemplate.js"></script>
+<script type='text/javascript' src="../dt.template.js"></script>
+<script type='text/javascript' src="../dt.helpers.js"></script>
+
+<script type="text/javascript">
+    $(function() {
+        $.domTemplate.init({
+            escape: false,
+            'data': {
+                users: ['小李2', '小明2'],
+                deps: [{
+                    name: "aaaaa",
+                    users: ['小李', '小明']
+                },
+                    {
+                        createTime:1467301654,
+                        name: "bbbbbb",
+                        users: ["xxxx", "eeeeeeeeee"]
+                    },
+                    {
+                        createTime:1467301654,
+                        name: "cccccc",
+                        users: ["ttttttttt", "www"]
+                    },
+                    {
+                        createTime:1467301654,
+                        name: "dddddd",
+                        users: ["hise", "fewf"]
+                    }]
+            }
+        });
+    });
+
+
+</script>
+
+</body>
+</html>
