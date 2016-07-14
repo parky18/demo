@@ -2,8 +2,7 @@
  * 解析表达式语法，可以用其它表达式引擎代替。
  * 主要提供两个方法：tpl()和compile()
  */
-;
-(function ($) {
+;(function ($) {
 
     "use strict";
 

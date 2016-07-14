@@ -72,7 +72,7 @@
             }
         },
         defaultIsEmpty: function (value, defaultStr) {
-            if (typeof value === "undefined" || defaultStr == '') {
+            if (value==null || typeof value === "undefined" || defaultStr == '') {
                 return defaultStr;
             } else {
                 return value;
